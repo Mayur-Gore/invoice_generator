@@ -1,0 +1,344 @@
+:root {
+  --navy: #0b2a6b;
+  --navy-dark: #071c49;
+  --blue: #1e56d8;
+  --orange: #f26a1b;
+  --bg-gradient: linear-gradient(135deg, #071c49 0%, #0b2a6b 50%, #1e56d8 100%);
+  --card-bg: #ffffff;
+  --text-main: #17233f;
+  --text-muted: #5b6785;
+  --border-color: #d5dcea;
+  --border-focus: #1e56d8;
+  --danger-bg: #fee4e2;
+  --danger-text: #b42318;
+  --success-bg: #d1fadf;
+  --success-text: #027a48;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-wrapper {
+  width: 100%;
+  max-width: 440px;
+}
+
+.login-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(7, 28, 73, 0.35);
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--navy) 0%, var(--blue) 50%, var(--orange) 100%);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.brand-logo svg {
+  width: 85px;
+  height: 50px;
+  margin-bottom: 4px;
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.brand-name span {
+  color: var(--blue);
+}
+
+.brand-sub {
+  font-weight: 700;
+  letter-spacing: 4px;
+  font-size: 9px;
+  color: var(--navy);
+  margin-top: 2px;
+}
+
+.brand-tag {
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: var(--orange);
+  font-weight: 800;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+.login-title-box {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.login-title-box h2 {
+  font-size: 20px;
+  color: var(--navy);
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.login-title-box p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Alert Box */
+.alert {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  line-height: 1.4;
+  animation: fadeIn 0.25s ease;
+}
+
+.alert.hidden {
+  display: none;
+}
+
+.alert.error {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid #fecdca;
+}
+
+.alert.success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid #a6f4c5;
+}
+
+.alert.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Form inputs */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+}
+
+.input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.input-icon-wrap input {
+  width: 100%;
+  font-size: 14.5px;
+  padding: 11px 40px 11px 38px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 9px;
+  background: #fbfcfe;
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.input-icon-wrap input:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(30, 86, 216, 0.15);
+}
+
+.toggle-pass-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.65;
+  transition: opacity 0.2s;
+}
+
+.toggle-pass-btn:hover {
+  opacity: 1;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+  font-size: 13px;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.remember-label input {
+  cursor: pointer;
+  accent-color: var(--navy);
+  width: 16px;
+  height: 16px;
+}
+
+/* Submit Button */
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background: var(--orange);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(242, 106, 27, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-submit:hover {
+  background: #de5a0e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(242, 106, 27, 0.45);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Footer & Status */
+.login-footer {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-badge.checking {
+  background: #f1f4fa;
+  color: var(--text-muted);
+}
+.status-badge.checking .status-dot {
+  background: #f59e0b;
+}
+
+.status-badge.online {
+  background: #ecfdf3;
+  color: #027a48;
+}
+.status-badge.online .status-dot {
+  background: #12b76a;
+}
+
+.status-badge.offline {
+  background: #fef3f2;
+  color: #b42318;
+}
+.status-badge.offline .status-dot {
+  background: #f04438;
+}
+
+.admin-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}

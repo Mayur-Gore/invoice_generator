@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Techwave Enterprises – Tax Invoice Generator</title>
+  <script>
+    // Enforce authentication: landing page is the login page!
+    (function () {
+      try {
+        var user = localStorage.getItem('techwave_user');
+        if (!user) {
+          window.location.replace('index.html');
+        }
+      } catch (e) {
+        window.location.replace('index.html');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <style id="pageRule">
+    @page {
+      size: A4 portrait;
+      margin: 8mm
+    }
+  </style>
+</head>
+
+<body class="tab-edit">
+  <div id="toast" style="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#17233f;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;max-width:90vw;z-index:50;display:none;box-shadow:0 6px 24px rgba(0,0,0,.3)"></div>
+
+  <div class="topbar">
+    <h1>TECH<span>WAVE</span> · Invoice Generator</h1>
+    <div class="actions">
+        <button class="btn-ghost" id="btnPrevBills" title="View previous bills">📂 Previous Bills</button>
+
+      <button class="btn-ghost" id="btnSaveDb" title="Save this bill directly to MongoDB database">💾 Save to DB</button>
+      <button class="btn-ghost" id="btnReset">New invoice</button>
+      <button class="btn-primary" id="btnPrint">🖨 Print / Save as PDF</button>
+      <div id="userBadge" style="display:inline-flex;align-items:center;gap:8px;padding:5px 10px;background:rgba(255,255,255,0.12);border-radius:8px;font-size:12px;font-weight:600;">
+        <span id="userNameDisplay">👤 Admin</span>
+        <button id="btnLogout" style="background:#fde8e6;color:#b42318;border:none;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;" title="Sign out">Logout</button>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button id="tabEdit" class="on">Edit</button>
+    <button id="tabPrev">Preview</button>
+  </div>
+
+  <div class="layout">
+    <!-- ================= FORM ================= -->
+    <div class="panel">
+      <div id="editBanner" class="edit-banner" style="display:none">
+        <div class="edit-banner-info">
+          <span class="edit-badge">EDITING</span>
+          <div>
+            <div class="edit-banner-title">Updating <strong id="editBannerNo"></strong></div>
+            <div class="edit-banner-sub" id="editBannerSub">Changes will update this saved record</div>
+          </div>
+        </div>
+        <div class="edit-banner-actions">
+          <button type="button" class="btn-small btn-update" id="btnBannerUpdate">💾 Update Bill</button>
+          <button type="button" class="btn-small" id="btnBannerNew">New Bill</button>
+        </div>
+      </div>
+
+      <details class="card">
+        <summary>Your company (saved on this device)</summary>
+        <div class="grid2">
+          <div class="full"><label>Address (appears on the invoice)</label><textarea data-k="coAddress"
+              placeholder="Shop / Office address, City, PIN"></textarea></div>
+          <div><label>Mobile no.</label><input data-k="coPhone"></div>
+          <div><label>Email</label><input data-k="coEmail"></div>
+          <div><label>Your GSTIN</label><input data-k="coGstin" placeholder="27XXXXXXXXXXXZX"></div>
+          <div><label>State / Code</label>
+            <div class="grid2"><input data-k="coState" placeholder="Maharashtra"><input data-k="coStateCode"
+                placeholder="27"></div>
+          </div>
+          <div class="full"><label>Bank details (optional)</label><textarea data-k="bank"
+              placeholder="Bank name, A/c no., IFSC"></textarea></div>
+        </div>
+      </details>
+
+      <div class="card">
+        <h2>Invoice details</h2>
+        <div class="grid2">
+          <div class="full"><label>Document type</label>
+            <select data-k="docType" style="font-weight:700">
+              <option value="invoice">Tax Invoice</option>
+              <option value="quotation">Quotation</option>
+            </select>
+          </div>
+          <div><label id="lblNo">Serial Number Invoice (auto)</label><input data-k="invNo" readonly tabindex="-1" title="Generated automatically" style="background:#f1f4fa;font-weight:700;color:#0b2a6b;cursor:not-allowed"></div>
+          <div><label>Mode of Transport</label><input data-k="transport" placeholder="Courier / Road"></div>
+          <div><label>P.O. No.</label><input data-k="poNo"></div>
+          <div><label>P.O. Date</label><input type="date" data-k="poDate"></div>
+          <div><label>Date of Supply</label><input type="date" data-k="supplyDate"></div>
+          <div><label>Time of Supply</label><input type="time" data-k="supplyTime"></div>
+          <div><label>Vehicle No.</label><input data-k="vehicle"></div>
+          <div class="full" id="gstWrap" style="display:none"><label>GST on this quotation</label>
+            <select data-k="gstOpt" style="font-weight:700"><option value="with">With GST</option><option value="without">Without GST</option></select>
+          </div>
+          <div class="full" id="prepWrap" style="display:none"><label>Quotation prepared by</label><input data-k="preparedBy" placeholder="Name of the person preparing this quotation"></div>
+          <div><label id="lblDue">Due Date</label><input type="date" data-k="dueDate"></div>
+          <div><label id="lblStatus">Payment Status</label>
+            <select data-k="payStatus"><option value=""></option><option>Unpaid</option><option>Paid</option><option>Partially Paid</option><option>Overdue</option></select>
+          </div>
+          <div><label>Place of Supply</label><input data-k="placeOfSupply"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Receiver (Billed To)</h2>
+        <div class="grid2">
+          <div class="full"><label>Name</label><input data-k="bName"></div>
+          <div class="full"><label>Address</label><textarea data-k="bAddress"></textarea></div>
+          <div><label>State</label><input data-k="bState"></div>
+          <div><label>State Code</label><input data-k="bStateCode" inputmode="numeric"></div>
+          <div class="full"><label>GSTIN / Unique ID </label><input data-k="bGstin"
+              style="background:#f1f4fa;font-weight:600"></div>
+        </div>
+      </div>
+
+      <div class="card" id="consCard">
+        <h2>Consignee (Shipped To)</h2>
+        <div class="check"><input type="checkbox" id="same" data-k="same"><label for="same">Same as Receiver</label>
+        </div>
+        <div class="grid2" id="consigneeFields">
+          <div class="full"><label>Name</label><input data-k="cName"></div>
+          <div class="full"><label>Address</label><textarea data-k="cAddress"></textarea></div>
+          <div><label>State</label><input data-k="cState"></div>
+          <div><label>State Code</label><input data-k="cStateCode" inputmode="numeric"></div>
+          <div class="full"><label>GSTIN / Unique ID</label><input data-k="cGstin"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Items</h2>
+        <div id="itemsBox"></div>
+        <button class="btn-small" id="addItem">+ Add item</button>
+      </div>
+
+      <div class="card">
+        <h2>Tax &amp; totals</h2>
+        <div class="grid2">
+          <div class="full"><label>GST type</label>
+            <select data-k="taxMode">
+              <option value="auto">Auto (same state → CGST+SGST, else IGST)</option>
+              <option value="intra">CGST + SGST (within state)</option>
+              <option value="inter">IGST (other state)</option>
+            </select>
+          </div>
+          <div><label>Freight charges (₹)</label><input type="number" min="0" step="0.01" data-k="freight"></div>
+          <div><label>Round off</label>
+            <select data-k="roundMode">
+              <option value="auto">Round to nearest ₹1</option>
+              <option value="none">No rounding</option>
+            </select>
+          </div>
+          <div class="full"><label>Terms &amp; conditions</label><textarea data-k="terms" rows="3"></textarea></div>
+          <div class="full"><label>Page orientation</label>
+            <select data-k="orientation">
+              <option value="portrait">A4 Portrait (switches to landscape automatically if the table needs more width)</option>
+              <option value="landscape">A4 Landscape (more room for columns)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PREVIEW ================= -->
+    <div class="preview-wrap" id="previewWrap">
+      <div class="sheet" id="sheet"></div>
+    </div>
+  </div>
+
+  <!-- ================= PREVIOUS BILLS MODAL ================= -->
+  <div id="prevBillsModal" class="modal-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="prevBillsTitle">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title-wrap">
+          <h2 id="prevBillsTitle">📂 Previous Bills</h2>
+          <span id="prevBillsCount" class="count-pill">0</span>
+        </div>
+        <div class="modal-head-actions">
+          <button type="button" class="btn-small" id="btnRefreshBills" title="Refresh list">↻ Refresh</button>
+          <button type="button" class="modal-close" id="btnClosePrevBills" title="Close">✕</button>
+        </div>
+      </div>
+      <div class="modal-filters">
+        <input type="search" id="prevBillsSearch" placeholder="Search by bill no., customer name, P.O. no., or GSTIN...">
+        <div class="filter-pills" id="prevBillsTypeTabs">
+          <button type="button" class="pill on" data-type="">All</button>
+          <button type="button" class="pill" data-type="invoice">Tax Invoices</button>
+          <button type="button" class="pill" data-type="quotation">Quotations</button>
+        </div>
+        <select id="prevBillsStatus">
+          <option value="">All Statuses</option>
+          <option value="Paid">Paid</option>
+          <option value="Unpaid">Unpaid</option>
+          <option value="Partially Paid">Partially Paid</option>
+          <option value="Overdue">Overdue</option>
+          <option value="Open">Open</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Expired">Expired</option>
+        </select>
+      </div>
+      <div id="prevBillsBody" class="modal-body">
+        <div id="prevBillsGrid" class="bills-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
