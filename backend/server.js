@@ -15,7 +15,15 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Configure CORS for separated frontend (Vercel) and local development
-const allowedOrigins = (process.env.FRONTEND_URL || '')
+const allowedOrigins = [
+  // Always allow any Vercel preview/production deployment
+  /^https:\/\/[a-z0-9-]+(\.vercel\.app)$/i,
+  // Always allow localhost dev servers
+  /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i,
+];
+
+// Also allow any extra origins specified via FRONTEND_URL env var (comma-separated)
+const extraOrigins = (process.env.FRONTEND_URL || '')
   .split(',')
   .map((o) => o.trim().replace(/\/+$/, ''))
   .filter((o) => o && !o.includes('your-frontend.vercel.app'));
@@ -23,17 +31,13 @@ const allowedOrigins = (process.env.FRONTEND_URL || '')
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (curl, Postman, file://), localhost dev servers, or when FRONTEND_URL is unrestricted
-      if (
-        !origin ||
-        allowedOrigins.length === 0 ||
-        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)
-      ) {
-        return callback(null, true);
-      }
-      if (allowedOrigins.includes(origin.replace(/\/+$/, ''))) {
-        return callback(null, true);
-      }
+      // Allow requests with no origin (curl, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      const clean = origin.replace(/\/+$/, '');
+      // Check regex patterns
+      if (allowedOrigins.some((p) => p.test(clean))) return callback(null, true);
+      // Check exact string matches from env var
+      if (extraOrigins.includes(clean)) return callback(null, true);
       return callback(new Error('Not allowed by CORS: ' + origin));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
