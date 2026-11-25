@@ -2,7 +2,7 @@
   'use strict';
 
   // Replace with your Render backend URL after deploying the backend (no trailing slash)
-  var PRODUCTION_API_URL = 'https://your-render-backend.onrender.com';
+  var PRODUCTION_API_URL = 'https://invoice-generator-rh1s.onrender.com';
 
   var isLocal =
     window.location.hostname === 'localhost' ||
